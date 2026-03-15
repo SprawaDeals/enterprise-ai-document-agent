@@ -1,0 +1,16 @@
+langchain
+langchain-community
+langchain-chroma
+langchain-openai
+chromadb
+sentence-transformers
+streamlit
+pymupdf
+pandas
+python-dotenv
+pydantic
+pydantic-settings
+crewai
+docker
+langchain-huggingface
+
