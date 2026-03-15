@@ -1,3 +1,4 @@
+text
 # 🤖 Enterprise AI Document Query Agent
 
 <div align="center">
@@ -78,7 +79,6 @@ enterprise-ai-document-agent/
 │   └── safety.py
 ├── data/
 └── chroma_db/
-
 Installation Steps
 Clone the repository:
 
