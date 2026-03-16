@@ -346,7 +346,7 @@ git push -u origin main
 
 Place your screenshots in a folder such as `docs/readme-images/` and reference them like this:
 
-```html
+
 <table>
 <tr>
 <td align="center"><img src="docs/readme-images/image1.png" alt="App Screenshot 1" width="280"/></td>
@@ -364,7 +364,7 @@ Place your screenshots in a folder such as `docs/readme-images/` and reference t
 <td></td>
 </tr>
 </table>
-```
+
 
 ---
 
