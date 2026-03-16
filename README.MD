@@ -344,7 +344,7 @@ git push -u origin main
 
 ## 🖼️ Screenshots
 
-Place your screenshots in a folder such as `docs/readme-images/` and reference them like this:
+Below are the screenshots from Landing page, indexing the document and providing the search content and finally the results:
 
 
 <table>
