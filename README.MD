@@ -79,6 +79,8 @@ enterprise-ai-document-agent/
 │   └── safety.py
 ├── data/
 └── chroma_db/
+```text
+
 Installation Steps
 Clone the repository:
 
