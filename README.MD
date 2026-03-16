@@ -1,4 +1,3 @@
-
 # 🤖 Enterprise AI Document Query Agent
 
 <div align="center">
@@ -79,49 +78,70 @@ enterprise-ai-document-agent/
 │   └── safety.py
 ├── data/
 └── chroma_db/
-```text
+```
 
-Installation Steps
-Clone the repository:
+### Installation Steps
 
-bash
+1. Clone the repository:
+
+```bash
 git clone https://github.com/SprawaDeals/enterprise-ai-document-agent.git
 cd enterprise-ai-document-agent
-Create and activate a virtual environment:
+```
 
-bash
+2. Create and activate a virtual environment:
+
+```bash
 python -m venv venv
+```
+
 For Windows:
 
-bash
+```bash
 venv\Scripts\activate
+```
+
 For Linux/Mac:
 
-bash
+```bash
 source venv/bin/activate
-Install dependencies:
+```
 
-bash
+3. Install dependencies:
+
+```bash
 pip install -r requirements.txt
-Create a .env file:
+```
 
-text
+4. Create a `.env` file:
+
+```text
 OPENAI_API_KEY=your_openai_api_key_here
-Add documents into the data folder.
+```
 
-Run the application:
+5. Add documents into the `data` folder.
 
-bash
+6. Run the application:
+
+```bash
 streamlit run app.py
-Open the application:
+```
 
-text
+7. Open the application:
+
+```text
 http://localhost:8501
-🏛️ Architecture
+```
+
+---
+
+## 🏛️ Architecture
+
 The system follows a modular architecture that separates ingestion, retrieval, reasoning, validation, and user interaction.
 
-High-Level Architecture
-text
+### High-Level Architecture
+
+```text
 User
   |
   v
@@ -149,109 +169,94 @@ Chunked Document Content
   v
 Document Ingestion Layer
 (PDF / TXT / CSV / Excel)
-Architecture Explanation
-User Interface Layer
+```
 
-Built using Streamlit.
+### Architecture Explanation
 
-Allows users to select a document folder, build the vector store, and ask questions.
+1. **User Interface Layer**
+   - Built using Streamlit.
+   - Allows users to select a document folder, build the vector store, and ask questions.
 
-Document Ingestion Layer
+2. **Document Ingestion Layer**
+   - Loads content from PDF, TXT, CSV, and Excel files.
+   - Converts all content into text format.
 
-Loads content from PDF, TXT, CSV, and Excel files.
+3. **Chunking Layer**
+   - Splits large document text into smaller overlapping chunks.
+   - Helps preserve context and improve retrieval quality.
 
-Converts all content into text format.
+4. **Embedding Layer**
+   - Uses Hugging Face sentence transformer embeddings.
+   - Converts text chunks into dense vector representations.
 
-Chunking Layer
+5. **Vector Store**
+   - Uses ChromaDB to store and search embeddings.
+   - Supports semantic similarity search.
 
-Splits large document text into smaller overlapping chunks.
+6. **Retriever**
+   - Finds the most relevant chunks for a user query.
 
-Helps preserve context and improve retrieval quality.
+7. **RAG Layer**
+   - Combines retrieved context with the user query.
+   - Sends the grounded prompt to the LLM.
 
-Embedding Layer
+8. **Agentic Workflow**
+   - Uses separate logical agents for planning, reasoning, and validation.
+   - Improves answer quality and reliability.
 
-Uses Hugging Face sentence transformer embeddings.
+9. **Safety Layer**
+   - Validates final output.
+   - Rejects speculative, unsafe, or weakly grounded responses.
 
-Converts text chunks into dense vector representations.
+---
 
-Vector Store
+## 🧠 Agent Roles
 
-Uses ChromaDB to store and search embeddings.
-
-Supports semantic similarity search.
-
-Retriever
-
-Finds the most relevant chunks for a user query.
-
-RAG Layer
-
-Combines retrieved context with the user query.
-
-Sends the grounded prompt to the LLM.
-
-Agentic Workflow
-
-Uses separate logical agents for planning, reasoning, and validation.
-
-Improves answer quality and reliability.
-
-Safety Layer
-
-Validates final output.
-
-Rejects speculative, unsafe, or weakly grounded responses.
-
-🧠 Agent Roles
 The system uses a logical agent workflow with separate responsibilities for each stage.
 
-1. Planner Agent
+### 1. Planner Agent
+
 The planner agent analyzes the user’s question and identifies:
-
-the intent of the query
-
-the key topics involved
-
-the type of evidence needed from the documents
+- the intent of the query
+- the key topics involved
+- the type of evidence needed from the documents
 
 This improves retrieval accuracy by structuring the query before search.
 
-2. Retriever
+### 2. Retriever
+
 The retriever performs semantic similarity search over ChromaDB and returns the most relevant document chunks for the given query.
 
-3. Reasoner Agent
+### 3. Reasoner Agent
+
 The reasoner uses:
-
-the original question
-
-the retrieval plan
-
-the retrieved chunks
+- the original question
+- the retrieval plan
+- the retrieved chunks
 
 It generates a draft response using only the available context so that the answer remains grounded in the source documents.
 
-4. Validator Agent
+### 4. Validator Agent
+
 The validator checks whether:
-
-the answer is supported by the retrieved context
-
-the answer includes references to source content
-
-the answer avoids unsupported claims or hallucinations
+- the answer is supported by the retrieved context
+- the answer includes references to source content
+- the answer avoids unsupported claims or hallucinations
 
 If needed, it rewrites the answer to improve reliability.
 
-5. Safety Layer
+### 5. Safety Layer
+
 The safety module applies final checks to the generated output and rejects:
+- speculative wording
+- unsafe terms
+- responses without source grounding
 
-speculative wording
+---
 
-unsafe terms
+## 🔄 End-to-End Workflow
 
-responses without source grounding
-
-🔄 End-to-End Workflow
-text
+```text
 1. User launches the Streamlit application
 2. User selects the folder containing enterprise documents
 3. Documents are loaded from PDF, TXT, CSV, or Excel files
@@ -265,19 +270,31 @@ text
 11. Validator reviews and improves the answer
 12. Safety layer validates the final output
 13. Final answer is displayed in the Streamlit UI
-🚀 Deployment Steps
-Local Deployment
+```
+
+---
+
+## 🚀 Deployment Steps
+
+### Local Deployment
+
 Run locally using:
 
-bash
+```bash
 streamlit run app.py
+```
+
 Access the application at:
 
-text
+```text
 http://localhost:8501
-Docker Deployment
-Example Dockerfile
-text
+```
+
+### Docker Deployment
+
+Example Dockerfile:
+
+```dockerfile
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -290,30 +307,46 @@ COPY . .
 EXPOSE 8501
 
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
-Build the Docker image
-bash
+```
+
+Build the Docker image:
+
+```bash
 docker build -t ai-agent .
-Run the container
-bash
+```
+
+Run the container:
+
+```bash
 docker run -p 8501:8501 --env-file .env ai-agent
+```
+
 To persist uploaded data and vector storage:
 
-bash
+```bash
 docker run -p 8501:8501 -v $(pwd)/data:/app/data -v $(pwd)/chroma_db:/app/chroma_db --env-file .env ai-agent
-GitHub Sync
+```
+
+### GitHub Sync
+
 You can version the project on GitHub using:
 
-bash
+```bash
 git init
 git add .
 git commit -m "Initial capstone project commit"
 git branch -M main
 git remote add origin https://github.com/SprawaDeals/enterprise-ai-document-agent.git
 git push -u origin main
-🖼️ Screenshots
-Place your screenshots in a folder such as docs/readme-images/ and reference them like this:
+```
 
-xml
+---
+
+## 🖼️ Screenshots
+
+Place your screenshots in a folder such as `docs/readme-images/` and reference them like this:
+
+```html
 <table>
 <tr>
 <td align="center"><img src="docs/readme-images/image1.png" alt="App Screenshot 1" width="280"/></td>
@@ -331,128 +364,127 @@ xml
 <td></td>
 </tr>
 </table>
-🛠️ Technologies Used
-Python 3.11
+```
 
-Streamlit
+---
 
-LangChain OpenAI
+## 🛠️ Technologies Used
 
-Hugging Face Embeddings
+- Python 3.11
+- Streamlit
+- LangChain OpenAI
+- Hugging Face Embeddings
+- ChromaDB
+- PyMuPDF
+- pandas
+- pydantic-settings
+- dotenv
+- Docker
 
-ChromaDB
+---
 
-PyMuPDF
+## ✅ Key Features Implemented
 
-pandas
+- Upload and process enterprise documents
+- Multi-format support: PDF, TXT, CSV, XLSX
+- Text chunking with overlap
+- Semantic retrieval from vector database
+- Retrieval-Augmented Generation
+- Agent-based reasoning workflow
+- Output validation and safety checks
+- Streamlit user interface
+- Deployable architecture
 
-pydantic-settings
+---
 
-dotenv
+## ⚠️ Limitations
 
-Docker
-
-✅ Key Features Implemented
-Upload and process enterprise documents
-
-Multi-format support: PDF, TXT, CSV, XLSX
-
-Text chunking with overlap
-
-Semantic retrieval from vector database
-
-Retrieval-Augmented Generation
-
-Agent-based reasoning workflow
-
-Output validation and safety checks
-
-Streamlit user interface
-
-Deployable architecture
-
-⚠️ Limitations
 Although the application works successfully, there are some limitations:
 
-External LLM dependency
+1. **External LLM dependency**
+   - The application depends on an external OpenAI model.
+   - This introduces API cost and response latency.
 
-The application depends on an external OpenAI model.
+2. **Embedding model limitations**
+   - The embedding model works best for English text.
+   - It may not perform equally well for multilingual or domain-heavy content.
 
-This introduces API cost and response latency.
+3. **Basic safety validation**
+   - The current validation approach is rule-based.
+   - It is suitable for demonstration but not as strong as enterprise-grade moderation systems.
 
-Embedding model limitations
+4. **Manual vector store refresh**
+   - If new documents are added after the vector store has been created, rebuilding may be required.
 
-The embedding model works best for English text.
+5. **Single-user design**
+   - The Streamlit implementation is suitable for a demo or capstone project.
+   - It is not optimized for multi-user production-scale usage.
 
-It may not perform equally well for multilingual or domain-heavy content.
+6. **No access control**
+   - Authentication and role-based access control are not currently implemented.
 
-Basic safety validation
+---
 
-The current validation approach is rule-based.
+## 🧩 Challenges Faced During Development
 
-It is suitable for demonstration but not as strong as enterprise-grade moderation systems.
+### 1. LangChain import changes
 
-Manual vector store refresh
+Several earlier imports were no longer supported in newer LangChain versions. These were updated to the newer module structure such as `langchain_core` and `langchain_huggingface`.
 
-If new documents are added after the vector store has been created, rebuilding may be required.
+### 2. Pydantic v2 migration
 
-Single-user design
+`BaseSettings` moved from `pydantic` to `pydantic_settings`, which caused configuration errors until the import was corrected.
 
-The Streamlit implementation is suitable for a demo or capstone project.
+### 3. Chroma persistence changes
 
-It is not optimized for multi-user production-scale usage.
+The older `persist()` method was no longer available in newer Chroma integrations. The implementation was updated to use `persist_directory`.
 
-No access control
+### 4. Streamlit session state issues
 
-Authentication and role-based access control are not currently implemented.
-
-🧩 Challenges Faced During Development
-1. LangChain import changes
-Several earlier imports were no longer supported in newer LangChain versions. These were updated to the newer module structure such as langchain_core and langchain_huggingface.
-
-2. Pydantic v2 migration
-BaseSettings moved from pydantic to pydantic_settings, which caused configuration errors until the import was corrected.
-
-3. Chroma persistence changes
-The older persist() method was no longer available in newer Chroma integrations. The implementation was updated to use persist_directory.
-
-4. Streamlit session state issues
 Session state values such as vector store, retriever, and message history had to be initialized explicitly to avoid runtime errors.
 
-5. Agent framework compatibility
+### 5. Agent framework compatibility
+
 Some third-party agent frameworks introduced dependency and import issues. To improve stability, the final design uses a simpler custom agentic workflow with planner, reasoner, and validator steps.
 
-6. Chunking and retrieval tuning
+### 6. Chunking and retrieval tuning
+
 Selecting the correct chunk size and overlap required iterative testing to balance context preservation and retrieval precision.
 
-🔮 Future Enhancements
+---
+
+## 🔮 Future Enhancements
+
 Possible future improvements include:
+- support for more document formats
+- direct file upload inside the Streamlit UI
+- multi-user authentication
+- hybrid retrieval combining vector and keyword search
+- local or open-source LLM support
+- stronger safety and factual verification
+- cloud deployment on Azure, AWS, or GCP
 
-support for more document formats
+---
 
-direct file upload inside the Streamlit UI
+## 🧪 Sample Use Case
 
-multi-user authentication
-
-hybrid retrieval combining vector and keyword search
-
-local or open-source LLM support
-
-stronger safety and factual verification
-
-cloud deployment on Azure, AWS, or GCP
-
-🧪 Sample Use Case
 A user uploads enterprise documents such as DAMA DMBOK, governance files, policy documents, or operational Excel sheets. The user then asks:
 
-text
+```text
 What is Data Governance? Explain in simple terms with examples.
+```
+
 The system retrieves the most relevant chunks, reasons over them, validates the answer, and presents a grounded response with source-based support.
 
-🎓 Conclusion
+---
+
+## 🎓 Conclusion
+
 This project demonstrates a complete Generative AI application for enterprise document question answering using RAG and agentic reasoning. It covers document ingestion, vector search, grounded answer generation, validation, and deployment through a usable Streamlit interface.
 
-👤 Author
-Capstone Project Submission
-Post Graduate Program in Generative AI and ML
+---
 
+## 👤 Author
+
+Capstone Project Submission  
+Post Graduate Program in Generative AI and ML
