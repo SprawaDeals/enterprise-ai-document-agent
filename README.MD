@@ -394,14 +394,16 @@ Below are the screenshots from Landing page, indexing the document and providing
 
 ## ✅ Key Features Implemented
 
-- Upload and process enterprise documents
+- File upload and processing of enterprise documents
 - Multi-format support: PDF, TXT, CSV, XLSX
 - Text chunking with overlap
 - Semantic retrieval from vector database
 - Retrieval-Augmented Generation
-- Agent-based reasoning workflow
+- LangGraph-based agent workflow
+- Query rewrite and retry logic
 - Output validation and safety checks
 - Streamlit user interface
+- Session-specific storage for uploads and vector indexes
 - Deployable architecture
 
 ---
