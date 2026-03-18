@@ -381,6 +381,7 @@ Below are the screenshots from Landing page, indexing the document and providing
 - Python 3.11
 - Streamlit
 - LangChain OpenAI
+- LangGraph
 - Hugging Face Embeddings
 - ChromaDB
 - PyMuPDF
