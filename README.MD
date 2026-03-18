@@ -182,36 +182,37 @@ Validated Response
    - Built using Streamlit.
    - Allows users to select a document folder, build the vector store, and ask questions.
 
-2. **Document Ingestion Layer**
+2. **Session-Based Storage**
+   - Each Streamlit session gets its own upload folder and vector-store folder.
+   - This reduces file overwrite and Windows file-lock issues during repeated indexing.
+
+3. **Document Ingestion Layer**
    - Loads content from PDF, TXT, CSV, and Excel files.
    - Converts all content into text format.
 
-3. **Chunking Layer**
+4. **Chunking Layer**
    - Splits large document text into smaller overlapping chunks.
    - Helps preserve context and improve retrieval quality.
 
-4. **Embedding Layer**
+5. **Embedding Layer**
    - Uses Hugging Face sentence transformer embeddings.
    - Converts text chunks into dense vector representations.
 
-5. **Vector Store**
+6. **Vector Store**
    - Uses ChromaDB to store and search embeddings.
    - Supports semantic similarity search.
 
-6. **Retriever**
-   - Finds the most relevant chunks for a user query.
-
-7. **RAG Layer**
-   - Combines retrieved context with the user query.
-   - Sends the grounded prompt to the LLM.
+7. **Retriever**
+   - Wraps Chroma retrieval in a custom EnterpriseRetriever.
+   - Supports both similarity search and similarity search with scores. 
 
 8. **Agentic Workflow**
-   - Uses separate logical agents for planning, reasoning, and validation.
-   - Improves answer quality and reliability.
+   - Built using LangGraph.
+   - Includes separate steps for planning, retrieval, context assessment, query rewriting, reasoning, validation, and fallback handling.
 
 9. **Safety Layer**
    - Validates final output.
-   - Rejects speculative, unsafe, or weakly grounded responses.
+   - Applies rule-based checks to detect empty output, speculative language, unsafe terms, and missing source attribution.
 
 ---
 
@@ -232,7 +233,15 @@ This improves retrieval accuracy by structuring the query before search.
 
 The retriever performs semantic similarity search over ChromaDB and returns the most relevant document chunks for the given query.
 
-### 3. Reasoner Agent
+### 3. Context Assessment Node
+
+This step evaluates whether the retrieved context is strong enough to continue. It uses retrieval scores when available and falls back to basic context checks otherwise.
+
+### 4. Query Rewriter Agent
+
+If retrieval quality is weak, the query is rewritten to improve semantic recall before trying retrieval again.
+
+### 5. Reasoner Agent
 
 The reasoner uses:
 - the original question
@@ -241,7 +250,7 @@ The reasoner uses:
 
 It generates a draft response using only the available context so that the answer remains grounded in the source documents.
 
-### 4. Validator Agent
+### 6. Validator Agent
 
 The validator checks whether:
 - the answer is supported by the retrieved context
@@ -250,12 +259,18 @@ The validator checks whether:
 
 If needed, it rewrites the answer to improve reliability.
 
-### 5. Safety Layer
+### 7. Safety Layer
 
 The safety module applies final checks to the generated output and rejects:
 - speculative wording
 - unsafe terms
 - responses without source grounding
+
+### 8. Fallback Node
+
+If the answer cannot be fully validated after the allowed number of retries, the system returns a fallback response with either:
+- a warning plus the draft answer, or
+- a generic grounded-failure message.
 
 ---
 
