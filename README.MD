@@ -148,27 +148,32 @@ User
 Streamlit User Interface
   |
   v
-Agentic Workflow
-(Planner -> Retriever -> Reasoner -> Validator)
-  |
-  v
-RAG Pipeline
-  |
-  v
-Retriever
-  |
-  v
-Chroma Vector Database
-  |
-  v
-Embeddings
-  |
-  v
-Chunked Document Content
+Session-Based File Upload
   |
   v
 Document Ingestion Layer
 (PDF / TXT / CSV / Excel)
+  |
+  v
+Chunking Layer
+  |
+  v
+Embedding Model
+(Hugging Face)
+  |
+  v
+Chroma Vector Store
+  |
+  v
+Enterprise Retriever
+  |
+  v
+LangGraph Agent Workflow
+(Planner -> Retrieve -> Assess -> Rewrite -> Reason -> Validate -> Fallback)
+  |
+  v
+Validated Response
+
 ```
 
 ### Architecture Explanation
