@@ -1,59 +1,39 @@
 from langchain_core.documents import Document
 from langchain_chroma import Chroma
-from typing import List
+from typing import List, Tuple
 
 
 class EnterpriseRetriever:
     """
     Wrapper class for semantic retrieval from the Chroma vector store.
-
-    Why this class exists:
-    - It provides a clean interface between the vector database and
-      the agentic RAG pipeline.
-    - It keeps retrieval logic separate from ingestion, embedding,
-      and generation logic.
-    - It supports the capstone task of retrieving the most relevant
-      document content based on a user query. [file:24]
     """
 
-    def __init__(self, vectorstore: Chroma):
-        """
-        Initialize the retriever with an existing Chroma vector store.
-
-        Args:
-            vectorstore: A Chroma database instance containing embedded
-                         document chunks.
-        """
+    def __init__(self, vectorstore: Chroma, k: int = 5):
+        # Store the underlying vector database and default top-k retrieval count.
         self.vectorstore = vectorstore
+        self.k = k
 
     def as_retriever(self):
-        """
-        Return the vector store as a LangChain-compatible retriever object.
-
-        Why this is useful:
-        - Some LangChain pipelines expect a retriever interface instead
-          of direct vector store calls.
-        - This makes the class more reusable if the project is later extended
-          with built-in LangChain retrieval chains.
-
-        Returns:
-            A retriever object configured to return the top 5 matches.
-        """
-        return self.vectorstore.as_retriever(search_kwargs={"k": 5})
+        # Expose a LangChain-compatible retriever when needed by other components.
+        return self.vectorstore.as_retriever(search_kwargs={"k": self.k})
 
     def get_relevant_documents(self, query: str) -> List[Document]:
+        # Standard similarity search used for retrieval-only flows.
+        return self.vectorstore.similarity_search(query, k=self.k)
+
+    def get_relevant_documents_with_scores(self, query: str) -> List[Tuple[Document, float]]:
+        # Returns both documents and similarity scores for quality assessment.
+        return self.vectorstore.similarity_search_with_score(query, k=self.k)
+
+    def has_sufficient_context(self, query: str, max_score_threshold: float = 1.2) -> bool:
         """
-        Retrieve the most relevant document chunks for a given query.
-
-        How it works:
-        - The query is converted into an embedding internally.
-        - Chroma compares that query embedding with stored document embeddings.
-        - The most semantically similar chunks are returned.
-
-        Args:
-            query: User's natural language question.
-
-        Returns:
-            A list of the top 5 most relevant document chunks.
+        Lower score generally means closer match in Chroma distance-based search.
+        This threshold may need tuning based on embedding model behavior.
         """
-        return self.vectorstore.similarity_search(query, k=5)
+        results = self.get_relevant_documents_with_scores(query)
+        if not results:
+            return False
+
+        # Use the best match to decide whether the retrieved context is likely usable.
+        best_score = min(score for _, score in results)
+        return best_score <= max_score_threshold

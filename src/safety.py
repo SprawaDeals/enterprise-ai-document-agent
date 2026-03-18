@@ -1,50 +1,29 @@
 import re
-from pydantic import validator, Field
-from typing import Any
-
-
-class SafeResponse(str):
-    """
-    Custom response type intended for validating generated output.
-
-    Goal:
-    - Add a guardrail layer before returning the response to the user.
-    - Detect speculative wording, unsafe content, and missing source references.
-    - Support the capstone requirement for reliability and safety controls. [file:24]
-    """
-
-    @validator('value')
-    def check_safety(cls, v):
-        # Check for speculative language that may indicate hallucination.
-        # Words such as "guess" or "maybe" suggest weak grounding.
-        if re.search(r'\b(guess|assume|probably|maybe)\b', v, re.I):
-            raise ValueError("Potential hallucination detected.")
-
-        # Check for sensitive or restricted terms that should not appear
-        # in a normal enterprise document-answering response.
-        unsafe = ['confidential', 'password', 'SSN']
-        if any(word in v.lower() for word in unsafe):
-            raise ValueError("Unsafe content detected.")
-
-        # Require source attribution for meaningful answers.
-        # This helps keep the output grounded in retrieved documents.
-        if 'source' not in v.lower() and len(v) > 50:
-            raise ValueError("Missing source attribution.")
-
-        return v
 
 
 def validate_output(response: str) -> str:
     """
-    Apply guardrails before returning the final answer.
+    Apply lightweight guardrails before returning the final answer.
 
-    Args:
-        response: LLM-generated answer.
-
-    Returns:
-        Validated response if checks pass, otherwise an error message.
+    Checks:
+    - speculative wording that may indicate hallucination
+    - unsafe sensitive terms
+    - missing source attribution for longer answers
     """
-    try:
-        return SafeResponse(response)
-    except ValueError as e:
-        return f"Validation failed: {e}. Response rejected for safety."
+    if not response or not response.strip():
+        return "Validation failed: Empty response."
+
+    # Flag speculative wording that may suggest the model is guessing.
+    if re.search(r'\b(guess|assume|probably|maybe)\b', response, re.I):
+        return "Validation failed: Potential hallucination detected."
+
+    # Block obviously sensitive content from being returned to the user.
+    unsafe_terms = ["confidential", "password", "ssn"]
+    if any(term in response.lower() for term in unsafe_terms):
+        return "Validation failed: Unsafe content detected."
+
+    # Require source attribution for longer answers to improve grounding.
+    if len(response) > 50 and "source" not in response.lower():
+        return "Validation failed: Missing source attribution."
+
+    return response

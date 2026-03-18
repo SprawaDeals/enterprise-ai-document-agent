@@ -55,6 +55,10 @@ class Settings(BaseSettings):
     # This can help control response length and reduce unnecessary verbosity.
     max_new_tokens: int = 500
 
+    max_agent_iterations: int = 3
+    retrieval_k: int = 5
+    retrieval_score_threshold: float = 1.2
+
     class Config:
         # Tells Pydantic to read configuration values from the .env file.
         env_file = ".env"
