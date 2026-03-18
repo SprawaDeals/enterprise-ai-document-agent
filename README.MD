@@ -263,18 +263,21 @@ The safety module applies final checks to the generated output and rejects:
 
 ```text
 1. User launches the Streamlit application
-2. User selects the folder containing enterprise documents
-3. Documents are loaded from PDF, TXT, CSV, or Excel files
-4. The document text is split into overlapping chunks
-5. Embeddings are generated for each chunk
-6. Embeddings are stored in ChromaDB
-7. User asks a natural language question
-8. Planner analyzes the question and identifies intent
-9. Retriever fetches the most relevant chunks
-10. Reasoner creates a grounded draft answer
-11. Validator reviews and improves the answer
-12. Safety layer validates the final output
-13. Final answer is displayed in the Streamlit UI
+2. User uploads enterprise documents in PDF, TXT, CSV, or Excel format
+3. Uploaded files are saved into a session-specific folder
+4. Documents are loaded and converted into text
+5. The text is split into overlapping chunks
+6. Embeddings are generated for each chunk
+7. Embeddings are stored in a session-specific Chroma vector store
+8. User asks a natural language question
+9. Planner creates a short retrieval plan
+10. Retriever fetches the most relevant chunks
+11. Context assessment decides whether retrieval is sufficient
+12. If needed, query rewrite improves the search query and retries retrieval
+13. Reasoner creates a grounded draft answer
+14. Validator approves the answer or requests another retry
+15. Safety checks validate the final response
+16. The final answer is displayed in the Streamlit UI
 ```
 
 ---
